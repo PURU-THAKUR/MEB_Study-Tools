@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar PV Array - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Solar PV Array Sizing</h2>
+            <p>Size PV strings and arrays based on inverter voltage windows.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Daily energy consumption (kWh/day):</label>
+                    <input type="number" id="energy" step="1" value="30">
+                </div>
+                <div class="form-group">
+                    <label>Peak sun hours per day:</label>
+                    <input type="number" id="psh" step="0.5" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Panel power (Wp):</label>
+                    <input type="number" id="panelW" step="5" value="400">
+                </div>
+                <div class="form-group">
+                    <label>Panel Voc (V):</label>
+                    <input type="number" id="voc" step="0.1" value="45">
+                </div>
+                <div class="form-group">
+                    <label>Panel Vmp (V):</label>
+                    <input type="number" id="vmp" step="0.1" value="38">
+                </div>
+                <div class="form-group">
+                    <label>Inverter max input voltage (V):</label>
+                    <input type="number" id="invMax" step="10" value="1000">
+                </div>
+                <div class="form-group">
+                    <label>Inverter MPPT range min (V):</label>
+                    <input type="number" id="mpptMin" step="10" value="200">
+                </div>
+                <div class="form-group">
+                    <label>Inverter MPPT range max (V):</label>
+                    <input type="number" id="mpptMax" step="10" value="800">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Size Array</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Array Configuration</h3>
+                <p>Number of panels: <span class="result-value" id="nPanels">0</span></p>
+                <p>Panels per string: <span id="series">0</span></p>
+                <p>Number of strings: <span id="strings">0</span></p>
+                <p>Array power: <span id="arrayPower">0</span> kWp</p>
+                <p>String Voc (cold): <span id="vocString">0</span> V</p>
+                <p>String Vmp (operating): <span id="vmpString">0</span> V</p>
+                <p>Array current (A): <span id="arrayCurrent">0</span> A</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../main.js"></script>
+    <script>
+        function calculate() {
+            const energy = parseFloat(document.getElementById('energy').value);
+            const psh = parseFloat(document.getElementById('psh').value);
+            const panelW = parseFloat(document.getElementById('panelW').value);
+            const voc = parseFloat(document.getElementById('voc').value);
+            const vmp = parseFloat(document.getElementById('vmp').value);
+            const invMax = parseFloat(document.getElementById('invMax').value);
+            const mpptMin = parseFloat(document.getElementById('mpptMin').value);
+            const mpptMax = parseFloat(document.getElementById('mpptMax').value);
+
+            // Required DC power (kWh/day = kWp * psh * efficiency)
+            const systemEff = 0.75; // overall losses
+            const requiredkWp = energy / (psh * systemEff);
+            const nPanels = Math.ceil(requiredkWp * 1000 / panelW);
+
+            // Temperature correction for Voc (cold -10°C)
+            const tempCoeffVoc = -0.003; // per °C
+            const deltaT = 25 - (-10); // 35°C drop
+            const vocCold = voc * (1 + tempCoeffVoc * deltaT);
+
+            // Max series panels based on inverter max voltage
+            const maxSeries = Math.floor(invMax / vocCold);
+
+            // Min series based on MPPT min (using Vmp at STC)
+            const minSeries = Math.ceil(mpptMin / vmp);
+
+            // Choose series within range
+            let series = Math.floor((minSeries + maxSeries) / 2);
+            if (series < minSeries) series = minSeries;
+            if (series > maxSeries) series = maxSeries;
+
+            const strings = Math.ceil(nPanels / series);
+            const actualPanels = series * strings;
+
+            // String voltages
+            const vocString = vocCold * series;
+            const vmpString = vmp * series;
+            const arrayPower = actualPanels * panelW / 1000;
+            const arrayCurrent = arrayPower * 1000 / (vmpString * strings); // per string current approx
+
+            document.getElementById('nPanels').innerText = actualPanels;
+            document.getElementById('series').innerText = series;
+            document.getElementById('strings').innerText = strings;
+            document.getElementById('arrayPower').innerText = arrayPower.toFixed(2);
+            document.getElementById('vocString').innerText = vocString.toFixed(0);
+            document.getElementById('vmpString').innerText = vmpString.toFixed(0);
+            document.getElementById('arrayCurrent').innerText = arrayCurrent.toFixed(1);
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

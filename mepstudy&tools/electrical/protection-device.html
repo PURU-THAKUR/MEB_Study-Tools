@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protection Device - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Protection Device Selection</h2>
+            <p>Select fuses and relays based on load and discrimination.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Load type:</label>
+                    <select id="loadType">
+                        <option value="general">General purpose</option>
+                        <option value="motor">Motor circuit</option>
+                        <option value="transformer">Transformer</option>
+                        <option value="capacitor">Capacitor bank</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Load current (A):</label>
+                    <input type="number" id="I" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Short‑circuit current (kA):</label>
+                    <input type="number" id="Isc" step="0.1" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Protection type:</label>
+                    <select id="protType">
+                        <option value="mcb">MCB</option>
+                        <option value="mccb">MCCB</option>
+                        <option value="fuse">Fuse</option>
+                        <option value="relay">Overload relay</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Select Device</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Recommended Protection</h3>
+                <table>
+                    <tr><th>Device</th><th>Rating</th><th>Breaking capacity</th></tr>
+                    <tr><td><span id="device"></span></td><td><span class="result-value" id="rating"></span> A</td><td><span id="breaking"></span> kA</td></tr>
+                </table>
+                <p>Tripping curve: <span id="curve"></span></p>
+                <p>Notes: <span id="notes"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const I = parseFloat(document.getElementById('I').value);
+            const Isc = parseFloat(document.getElementById('Isc').value);
+            const load = document.getElementById('loadType').value;
+            const prot = document.getElementById('protType').value;
+
+            let rating, device, curve, breaking, notes;
+
+            // Rating based on load type
+            if (load === 'general') {
+                rating = Math.ceil(I * 1.1);
+            } else if (load === 'motor') {
+                rating = Math.ceil(I * 1.25);
+            } else if (load === 'transformer') {
+                rating = Math.ceil(I * 1.5);
+            } else {
+                rating = Math.ceil(I * 1.35);
+            }
+
+            // Device name and curve
+            if (prot === 'mcb') {
+                device = 'MCB';
+                curve = 'B, C, or D';
+                if (load === 'motor') curve = 'C or D';
+                else if (load === 'general') curve = 'B or C';
+                breaking = Math.min(Isc, 10); // MCB typical
+            } else if (prot === 'mccb') {
+                device = 'MCCB';
+                curve = 'Adjustable';
+                breaking = Math.min(Isc, 50);
+            } else if (prot === 'fuse') {
+                device = 'Fuse (gG/gM)';
+                curve = 'aM for motor, gG for general';
+                breaking = Math.min(Isc, 100);
+            } else {
+                device = 'Overload relay';
+                curve = 'Class 10 / 20';
+                breaking = 'N/A';
+                rating = I; // overload set to FLA
+            }
+
+            if (Isc > breaking) notes = '⚠️ Breaking capacity insufficient – upgrade device';
+            else notes = 'Device suitable';
+
+            document.getElementById('device').innerText = device;
+            document.getElementById('rating').innerText = rating;
+            document.getElementById('breaking').innerText = breaking;
+            document.getElementById('curve').innerText = curve;
+            document.getElementById('notes').innerText = notes;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

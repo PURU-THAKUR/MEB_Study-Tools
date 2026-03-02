@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CT Saturation Calculator - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>CT Saturation Check</h2>
+            <p>Verify if current transformer will saturate under fault conditions.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>CT ratio (e.g., 1000/5):</label>
+                    <select id="ratio">
+                        <option value="200">200/5</option>
+                        <option value="400">400/5</option>
+                        <option value="600">600/5</option>
+                        <option value="800">800/5</option>
+                        <option value="1000">1000/5</option>
+                        <option value="1200">1200/5</option>
+                        <option value="2000">2000/5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>CT class:</label>
+                    <select id="class">
+                        <option value="10">10P10</option>
+                        <option value="20">20P20</option>
+                        <option value="5P10">5P10</option>
+                        <option value="5P20">5P20</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Maximum fault current (kA):</label>
+                    <input type="number" id="ifault" step="0.1" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Relay burden (VA):</label>
+                    <input type="number" id="burden" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Lead resistance (ohms):</label>
+                    <input type="number" id="leadR" step="0.01" value="0.1">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Check Saturation</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Saturation Check</h3>
+                <p>Secondary current: <span class="result-value" id="Isec">0</span> A</p>
+                <p>Required knee point voltage: <span id="VkNeed">0</span> V</p>
+                <p>CT knee point (approx): <span id="VkCt">0</span> V</p>
+                <p>Status: <span id="status"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const ratioVal = parseInt(document.getElementById('ratio').value);
+            const ctClass = document.getElementById('class').value;
+            const Ifault = parseFloat(document.getElementById('ifault').value) * 1000; // A
+            const burdenVA = parseFloat(document.getElementById('burden').value);
+            const leadR = parseFloat(document.getElementById('leadR').value);
+
+            // Secondary current during fault
+            const Isec = Ifault / ratioVal;
+
+            // Total burden impedance (assume resistive)
+            // Burden VA = I^2 * R, so R = VA / I^2
+            const relayR = burdenVA / (5*5); // for 5A secondary nominal
+            const totalR = relayR + leadR;
+
+            // Required knee point voltage = Isec * totalR * (safety factor ~2)
+            const VkNeed = Isec * totalR * 2;
+
+            // Approx CT knee point based on class: e.g., 5P10 means 5% accuracy at 10x rated current, Vk ~ 10 * In * Rbn
+            let VkCt;
+            if (ctClass === '10P10') VkCt = 10 * 5 * (burdenVA/25 + leadR); // rough
+            else if (ctClass === '20P20') VkCt = 20 * 5 * (burdenVA/25 + leadR);
+            else if (ctClass === '5P10') VkCt = 10 * 5 * (burdenVA/25 + leadR);
+            else VkCt = 20 * 5 * (burdenVA/25 + leadR); // 5P20
+
+            const status = VkNeed <= VkCt ? '✅ CT will not saturate' : '❌ CT may saturate';
+
+            document.getElementById('Isec').innerText = Isec.toFixed(2);
+            document.getElementById('VkNeed').innerText = VkNeed.toFixed(1);
+            document.getElementById('VkCt').innerText = VkCt.toFixed(1);
+            document.getElementById('status').innerText = status;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

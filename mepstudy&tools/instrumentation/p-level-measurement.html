@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DP Level Measurement - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#instrumentation" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Instrumentation</a>
+        <div class="calc-card">
+            <h2>DP Level Transmitter (Wet / Dry Leg)</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Tank height (m):</label>
+                    <input type="number" id="H" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Process fluid density (kg/m³):</label>
+                    <input type="number" id="rhoP" step="1" value="1000">
+                </div>
+                <div class="form-group">
+                    <label>Leg fluid density (kg/m³) – 0 for dry leg:</label>
+                    <input type="number" id="rhoL" step="1" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Minimum level (m):</label>
+                    <input type="number" id="Lmin" step="0.1" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Maximum level (m):</label>
+                    <input type="number" id="Lmax" step="0.1" value="5">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate DP</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>DP at 0% level: <strong id="dp0">0</strong> Pa</p>
+                <p>DP at 100% level: <strong id="dp100">0</strong> Pa</p>
+                <p>Span: <strong id="span">0</strong> Pa</p>
+                <p>Calibration range: <span id="cal"></span></p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const H = parseFloat(document.getElementById('H').value);
+            const rhoP = parseFloat(document.getElementById('rhoP').value);
+            const rhoL = parseFloat(document.getElementById('rhoL').value);
+            const Lmin = parseFloat(document.getElementById('Lmin').value);
+            const Lmax = parseFloat(document.getElementById('Lmax').value);
+            const g = 9.81;
+
+            // DP at transmitter: Phigh - Plow
+            // For wet leg: low side pressure = rhoL * g * H (constant)
+            // For dry leg: low side = 0 (atmospheric)
+            const lowSide = rhoL * g * H;
+            const dpMin = (rhoP * g * Lmin) - lowSide;
+            const dpMax = (rhoP * g * Lmax) - lowSide;
+
+            document.getElementById('dp0').innerText = dpMin.toFixed(0);
+            document.getElementById('dp100').innerText = dpMax.toFixed(0);
+            document.getElementById('span').innerText = (dpMax - dpMin).toFixed(0);
+            document.getElementById('cal').innerText = `${dpMin.toFixed(0)} to ${dpMax.toFixed(0)} Pa`;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

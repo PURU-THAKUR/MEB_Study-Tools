@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipe Flow Calculator - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#mechanical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Mechanical</a>
+        <div class="calc-card">
+            <h2>Pipe Flow (Darcy–Weisbach)</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Pipe diameter (mm):</label>
+                    <input type="number" id="D" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Length (m):</label>
+                    <input type="number" id="L" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Flow velocity (m/s):</label>
+                    <input type="number" id="v" step="0.1" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Fluid density (kg/m³):</label>
+                    <input type="number" id="rho" step="1" value="1000">
+                </div>
+                <div class="form-group">
+                    <label>Dynamic viscosity (Pa·s):</label>
+                    <input type="number" id="mu" step="1e-4" value="0.001">
+                </div>
+                <div class="form-group">
+                    <label>Roughness ε (mm):</label>
+                    <input type="number" id="eps" step="0.01" value="0.05">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>Reynolds number: <strong id="Re">0</strong></p>
+                <p>Friction factor f: <strong id="f">0</strong></p>
+                <p>Pressure drop: <strong id="dp">0</strong> Pa</p>
+                <p>Head loss: <strong id="hl">0</strong> m</p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function colebrook(Re, relRough) {
+            if (Re < 2000) return 64 / Re;
+            let f = 0.02;
+            for (let i = 0; i < 20; i++) {
+                const term = relRough / 3.7 + 2.51 / (Re * Math.sqrt(f));
+                const fNew = Math.pow(-2 * Math.log10(term), -2);
+                if (Math.abs(f - fNew) < 1e-6) return fNew;
+                f = fNew;
+            }
+            return f;
+        }
+
+        function calculate() {
+            const D = parseFloat(document.getElementById('D').value) / 1000; // m
+            const L = parseFloat(document.getElementById('L').value);
+            const v = parseFloat(document.getElementById('v').value);
+            const rho = parseFloat(document.getElementById('rho').value);
+            const mu = parseFloat(document.getElementById('mu').value);
+            const eps = parseFloat(document.getElementById('eps').value) / 1000; // m
+
+            const Re = rho * v * D / mu;
+            const relRough = eps / D;
+            const f = colebrook(Re, relRough);
+
+            const dp = f * (L / D) * (rho * v * v / 2);
+            const hl = dp / (rho * 9.81);
+
+            document.getElementById('Re').innerText = Re.toFixed(0);
+            document.getElementById('f').innerText = f.toFixed(4);
+            document.getElementById('dp').innerText = dp.toFixed(0);
+            document.getElementById('hl').innerText = hl.toFixed(2);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
