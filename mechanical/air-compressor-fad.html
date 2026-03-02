@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Compressor FAD - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container" style="max-width:800px; margin:40px auto; padding:0 20px;">
+        <a href="../index.html#mechanical" class="back-btn" style="display:inline-block; margin-bottom:20px; color:var(--primary); text-decoration:none; font-weight:600;"><i class="fas fa-arrow-left"></i> Back to Mechanical</a>
+
+        <div class="calc-card" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:30px; box-shadow:var(--shadow);">
+            <h2>Air Compressor FAD to SCFM / Nm³/hr</h2>
+            <p>Convert Free Air Delivery to standard flow rates.</p>
+
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Flow rate (FAD) [CFM]:</label>
+                    <input type="number" id="fad" step="1" value="500">
+                </div>
+                <div class="form-group">
+                    <label>Inlet pressure [bar(a)]:</label>
+                    <input type="number" id="pIn" step="0.01" value="1.013">
+                </div>
+                <div class="form-group">
+                    <label>Inlet temperature [°C]:</label>
+                    <input type="number" id="tIn" step="1" value="35">
+                </div>
+                <div class="form-group">
+                    <label>Relative humidity [%]:</label>
+                    <input type="number" id="rh" step="1" value="60">
+                </div>
+                <div class="form-group">
+                    <label>Target standard:</label>
+                    <select id="std">
+                        <option value="scfm">SCFM (14.7 psi, 68°F)</option>
+                        <option value="nm3">Nm³/hr (1 atm, 0°C)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Convert</button>
+            </form>
+
+            <div class="result-box" id="result" style="display:none; margin-top:30px; padding:20px; background:var(--bg); border-radius:8px; border-left:4px solid var(--primary);">
+                <p>Standard flow: <strong id="stdFlow">0</strong></p>
+                <p>Correction factor: <strong id="factor">0</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const fad = parseFloat(document.getElementById('fad').value);
+            const pIn = parseFloat(document.getElementById('pIn').value) * 100000; // bar to Pa
+            const tIn = parseFloat(document.getElementById('tIn').value) + 273.15; // °C to K
+            const rh = parseFloat(document.getElementById('rh').value) / 100;
+            const std = document.getElementById('std').value;
+
+            // Saturation pressure at inlet temperature (simplified Antoine)
+            const psat = 610.78 * Math.exp(17.27 * (tIn-273.15) / ((tIn-273.15) + 237.3)); // Pa
+            const pv = rh * psat;
+            const pDry = pIn - pv;
+
+            // Standard conditions
+            let pStd, tStd;
+            if (std === 'scfm') {
+                pStd = 14.7 * 6894.76; // psi to Pa
+                tStd = 68 + 459.67; // °F to R, but we need K: (68+459.67)/1.8
+                tStd = (68 + 459.67) / 1.8; // K
+            } else {
+                pStd = 101325; // Pa
+                tStd = 273.15; // K
+            }
+
+            const factor = (pDry / pStd) * (tStd / tIn);
+            const stdFlow = fad * factor;
+
+            document.getElementById('stdFlow').innerText = std === 'scfm' ? stdFlow.toFixed(2) + ' SCFM' : (stdFlow * 1.699).toFixed(2) + ' Nm³/hr';
+            document.getElementById('factor').innerText = factor.toFixed(4);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

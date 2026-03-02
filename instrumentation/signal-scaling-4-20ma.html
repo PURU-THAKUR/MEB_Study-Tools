@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Scaling 4‑20mA - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#instrumentation" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Instrumentation</a>
+        <div class="calc-card">
+            <h2>4‑20mA Scaling (Engineering Units)</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Input type:</label>
+                    <select id="mode">
+                        <option value="ma2eu">mA → Engineering Units</option>
+                        <option value="eu2ma">Engineering Units → mA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Range min (EU):</label>
+                    <input type="number" id="minEU" step="any" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Range max (EU):</label>
+                    <input type="number" id="maxEU" step="any" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Value:</label>
+                    <input type="number" id="value" step="any" value="50">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Convert</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>Result: <strong id="resultVal">0</strong></p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const mode = document.getElementById('mode').value;
+            const minEU = parseFloat(document.getElementById('minEU').value);
+            const maxEU = parseFloat(document.getElementById('maxEU').value);
+            const val = parseFloat(document.getElementById('value').value);
+
+            let res;
+            if (mode === 'ma2eu') {
+                // mA to EU
+                res = minEU + (val - 4) * (maxEU - minEU) / 16;
+            } else {
+                // EU to mA
+                res = 4 + (val - minEU) * 16 / (maxEU - minEU);
+            }
+
+            document.getElementById('resultVal').innerText = res.toFixed(2);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

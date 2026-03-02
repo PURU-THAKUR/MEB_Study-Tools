@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonics Analyser - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Harmonics Analyser</h2>
+            <p>Analyse individual harmonic orders and their contribution.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Fundamental frequency (Hz):</label>
+                    <input type="number" id="freq" step="1" value="50">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic magnitudes (comma separated, e.g., 100,10,5,3,2):</label>
+                    <input type="text" id="magList" value="100,10,8,5,3,2" style="width:100%;">
+                </div>
+                <button type="button" class="btn" onclick="analyse()">Analyse</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Harmonic Spectrum</h3>
+                <p>THD: <span class="result-value" id="thd">0.00</span>%</p>
+                <table id="harmonicTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function analyse() {
+            const f = parseFloat(document.getElementById('freq').value);
+            const magStr = document.getElementById('magList').value;
+            const mags = magStr.split(',').map(Number).filter(v => !isNaN(v));
+
+            if (mags.length === 0) return;
+
+            const fund = mags[0];
+            const harmonics = mags.slice(1);
+            const sumSq = harmonics.reduce((acc, val) => acc + val*val, 0);
+            const thd = Math.sqrt(sumSq) / fund * 100;
+
+            let tableHtml = '<tr><th>Order</th><th>Frequency (Hz)</th><th>Magnitude</th><th>% of fund</th></tr>';
+            mags.forEach((mag, idx) => {
+                const order = idx + 1;
+                const freqHz = order * f;
+                const percent = (mag / fund * 100).toFixed(2);
+                tableHtml += `<tr><td>${order}</td><td>${freqHz}</td><td>${mag}</td><td>${percent}%</td></tr>`;
+            });
+
+            document.getElementById('thd').innerText = thd.toFixed(2);
+            document.getElementById('harmonicTable').innerHTML = tableHtml;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

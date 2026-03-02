@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Exchanger - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#mechanical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Mechanical</a>
+        <div class="calc-card">
+            <h2>LMTD and Heat Transfer</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Hot in T₁ (°C):</label>
+                    <input type="number" id="Thi" step="1" value="90">
+                </div>
+                <div class="form-group">
+                    <label>Hot out T₂ (°C):</label>
+                    <input type="number" id="Tho" step="1" value="60">
+                </div>
+                <div class="form-group">
+                    <label>Cold in T₃ (°C):</label>
+                    <input type="number" id="Tci" step="1" value="20">
+                </div>
+                <div class="form-group">
+                    <label>Cold out T₄ (°C):</label>
+                    <input type="number" id="Tco" step="1" value="40">
+                </div>
+                <div class="form-group">
+                    <label>Overall U (W/m²K):</label>
+                    <input type="number" id="U" step="1" value="500">
+                </div>
+                <div class="form-group">
+                    <label>Heat load Q (kW):</label>
+                    <input type="number" id="Q" step="1" value="100">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate Area</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>ΔT₁: <strong id="dt1">0</strong> °C</p>
+                <p>ΔT₂: <strong id="dt2">0</strong> °C</p>
+                <p>LMTD: <strong id="lmtd">0</strong> °C</p>
+                <p>Required area: <strong id="A">0</strong> m²</p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const Thi = parseFloat(document.getElementById('Thi').value);
+            const Tho = parseFloat(document.getElementById('Tho').value);
+            const Tci = parseFloat(document.getElementById('Tci').value);
+            const Tco = parseFloat(document.getElementById('Tco').value);
+            const U = parseFloat(document.getElementById('U').value);
+            const Q = parseFloat(document.getElementById('Q').value) * 1000; // W
+
+            const dt1 = Thi - Tco;
+            const dt2 = Tho - Tci;
+            const lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
+            const A = Q / (U * lmtd);
+
+            document.getElementById('dt1').innerText = dt1.toFixed(1);
+            document.getElementById('dt2').innerText = dt2.toFixed(1);
+            document.getElementById('lmtd').innerText = lmtd.toFixed(1);
+            document.getElementById('A').innerText = A.toFixed(2);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
