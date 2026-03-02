@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrasonic Level - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#instrumentation" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Instrumentation</a>
+        <div class="calc-card">
+            <h2>Ultrasonic Level Measurement</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Tank height (m):</label>
+                    <input type="number" id="H" step="0.1" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Measured time of flight (ms):</label>
+                    <input type="number" id="t" step="0.01" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Speed of sound (m/s):</label>
+                    <input type="number" id="c" step="1" value="340">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate Level</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>Distance to product: <strong id="d">0</strong> m</p>
+                <p>Level (from bottom): <strong id="level">0</strong> m</p>
+                <p>Level %: <strong id="percent">0</strong>%</p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const H = parseFloat(document.getElementById('H').value);
+            const t = parseFloat(document.getElementById('t').value) / 1000; // seconds
+            const c = parseFloat(document.getElementById('c').value);
+
+            const d = c * t / 2;
+            const level = H - d;
+            const percent = (level / H) * 100;
+
+            document.getElementById('d').innerText = d.toFixed(2);
+            document.getElementById('level').innerText = level.toFixed(2);
+            document.getElementById('percent').innerText = percent.toFixed(1);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

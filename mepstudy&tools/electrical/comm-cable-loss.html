@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comm Cable Loss - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Communication Cable Loss</h2>
+            <p>Estimate signal attenuation (dB) in data/communication cables.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Cable type:</label>
+                    <select id="type">
+                        <option value="cat5e">Cat5e</option>
+                        <option value="cat6">Cat6</option>
+                        <option value="rg58">RG58 Coax</option>
+                        <option value="rg213">RG213 Coax</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Frequency (MHz):</label>
+                    <input type="number" id="freq" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Length (m):</label>
+                    <input type="number" id="length" step="1" value="50">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate Loss</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Total Attenuation</h3>
+                <p><span class="result-value" id="loss">0.00</span> dB</p>
+                <p>Loss per 100m: <span id="per100m">0.00</span> dB</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const type = document.getElementById('type').value;
+            const f = parseFloat(document.getElementById('freq').value);
+            const L = parseFloat(document.getElementById('length').value);
+
+            // Typical attenuation per 100m at 100MHz
+            let attPer100m;
+            if (type === 'cat5e') attPer100m = 20.0; // dB/100m at 100MHz
+            else if (type === 'cat6') attPer100m = 18.0;
+            else if (type === 'rg58') attPer100m = 30.0;
+            else attPer100m = 15.0;
+
+            // Frequency scaling (simplified sqrt(f) for coax, linear for twisted pair)
+            let att;
+            if (type.includes('cat')) {
+                // Twisted pair approx linear with f
+                att = (attPer100m * f / 100) * (L / 100);
+            } else {
+                // Coax ~ sqrt(f)
+                att = attPer100m * Math.sqrt(f / 100) * (L / 100);
+            }
+
+            document.getElementById('loss').innerText = att.toFixed(2);
+            document.getElementById('per100m').innerText = (att * 100 / L).toFixed(2);
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

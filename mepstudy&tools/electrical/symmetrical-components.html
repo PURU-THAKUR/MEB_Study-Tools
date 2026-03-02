@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symmetrical Components - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Symmetrical Components</h2>
+            <p>Decompose unbalanced 3‑phase phasors into positive, negative, zero sequence.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Va (polar form: mag ∠angle°):</label>
+                    <input type="text" id="va" placeholder="e.g., 100∠0" value="100∠0">
+                </div>
+                <div class="form-group">
+                    <label>Vb (polar form):</label>
+                    <input type="text" id="vb" placeholder="e.g., 90∠-120" value="90∠-120">
+                </div>
+                <div class="form-group">
+                    <label>Vc (polar form):</label>
+                    <input type="text" id="vc" placeholder="e.g., 95∠120" value="95∠120">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Sequence Components</h3>
+                <p>Positive sequence: <span class="result-value" id="v1">0</span> ∠ <span id="a1">0</span>°</p>
+                <p>Negative sequence: <span class="result-value" id="v2">0</span> ∠ <span id="a2">0</span>°</p>
+                <p>Zero sequence: <span class="result-value" id="v0">0</span> ∠ <span id="a0">0</span>°</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function parsePolar(str) {
+            const match = str.match(/([0-9.]+)∠([-0-9.]+)/);
+            if (!match) return {mag:0, ang:0};
+            return {mag: parseFloat(match[1]), ang: parseFloat(match[2]) * Math.PI/180};
+        }
+
+        function toPolar(real, imag) {
+            const mag = Math.sqrt(real*real + imag*imag);
+            const ang = Math.atan2(imag, real) * 180/Math.PI;
+            return {mag, ang};
+        }
+
+        function calculate() {
+            const va = parsePolar(document.getElementById('va').value);
+            const vb = parsePolar(document.getElementById('vb').value);
+            const vc = parsePolar(document.getElementById('vc').value);
+
+            // Convert to rectangular
+            const a = {r: va.mag * Math.cos(va.ang), i: va.mag * Math.sin(va.ang)};
+            const b = {r: vb.mag * Math.cos(vb.ang), i: vb.mag * Math.sin(vb.ang)};
+            const c = {r: vc.mag * Math.cos(vc.ang), i: vc.mag * Math.sin(vc.ang)};
+
+            // Operator a = 1∠120°
+            const a120 = {r: Math.cos(120*Math.PI/180), i: Math.sin(120*Math.PI/180)};
+            const a240 = {r: Math.cos(240*Math.PI/180), i: Math.sin(240*Math.PI/180)};
+
+            // Zero sequence: (a+b+c)/3
+            const v0r = (a.r + b.r + c.r)/3;
+            const v0i = (a.i + b.i + c.i)/3;
+            const v0 = toPolar(v0r, v0i);
+
+            // Positive: (a + a120*b + a240*c)/3
+            const v1r = (a.r + (a120.r*b.r - a120.i*b.i) + (a240.r*c.r - a240.i*c.i))/3;
+            const v1i = (a.i + (a120.r*b.i + a120.i*b.r) + (a240.r*c.i + a240.i*c.r))/3;
+            const v1 = toPolar(v1r, v1i);
+
+            // Negative: (a + a240*b + a120*c)/3
+            const v2r = (a.r + (a240.r*b.r - a240.i*b.i) + (a120.r*c.r - a120.i*c.i))/3;
+            const v2i = (a.i + (a240.r*b.i + a240.i*b.r) + (a120.r*c.i + a120.i*c.r))/3;
+            const v2 = toPolar(v2r, v2i);
+
+            document.getElementById('v0').innerText = v0.mag.toFixed(2);
+            document.getElementById('a0').innerText = v0.ang.toFixed(1);
+            document.getElementById('v1').innerText = v1.mag.toFixed(2);
+            document.getElementById('a1').innerText = v1.ang.toFixed(1);
+            document.getElementById('v2').innerText = v2.mag.toFixed(2);
+            document.getElementById('a2').innerText = v2.ang.toFixed(1);
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

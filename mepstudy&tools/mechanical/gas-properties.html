@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Properties - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#mechanical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Mechanical</a>
+        <div class="calc-card">
+            <h2>Ideal Gas Properties</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Gas:</label>
+                    <select id="gas">
+                        <option value="air">Air</option>
+                        <option value="n2">Nitrogen</option>
+                        <option value="o2">Oxygen</option>
+                        <option value="co2">CO₂</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pressure P (bar):</label>
+                    <input type="number" id="P" step="0.1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Temperature T (°C):</label>
+                    <input type="number" id="T" step="1" value="20">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>Density ρ: <strong id="rho">0</strong> kg/m³</p>
+                <p>Specific volume: <strong id="v">0</strong> m³/kg</p>
+                <p>Gas constant R: <strong id="R">0</strong> J/kg·K</p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        const gasData = {
+            air: { R: 287, molarMass: 28.96 },
+            n2: { R: 296.8, molarMass: 28.01 },
+            o2: { R: 259.8, molarMass: 32.0 },
+            co2: { R: 188.9, molarMass: 44.01 }
+        };
+
+        function calculate() {
+            const gas = document.getElementById('gas').value;
+            const P = parseFloat(document.getElementById('P').value) * 1e5; // Pa
+            const T = parseFloat(document.getElementById('T').value) + 273.15; // K
+            const R = gasData[gas].R;
+
+            const rho = P / (R * T);
+            const v = 1 / rho;
+
+            document.getElementById('rho').innerText = rho.toFixed(3);
+            document.getElementById('v').innerText = v.toFixed(3);
+            document.getElementById('R').innerText = R;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydraulic Cylinder - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>...</header>
+    <div class="calc-container">
+        <a href="../index.html#mechanical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Mechanical</a>
+        <div class="calc-card">
+            <h2>Hydraulic Cylinder Force & Speed</h2>
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Bore diameter (mm):</label>
+                    <input type="number" id="D" step="1" value="80">
+                </div>
+                <div class="form-group">
+                    <label>Rod diameter (mm):</label>
+                    <input type="number" id="d" step="1" value="40">
+                </div>
+                <div class="form-group">
+                    <label>Pressure (bar):</label>
+                    <input type="number" id="P" step="1" value="160">
+                </div>
+                <div class="form-group">
+                    <label>Flow rate (L/min):</label>
+                    <input type="number" id="Q" step="0.1" value="20">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate</button>
+            </form>
+            <div class="result-box" id="result" style="display:none;">
+                <p>Extension force: <strong id="Fe">0</strong> kN</p>
+                <p>Retraction force: <strong id="Fr">0</strong> kN</p>
+                <p>Extension speed: <strong id="ve">0</strong> m/s</p>
+                <p>Retraction speed: <strong id="vr">0</strong> m/s</p>
+            </div>
+        </div>
+    </div>
+    <footer>...</footer>
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const D = parseFloat(document.getElementById('D').value) / 1000; // m
+            const d = parseFloat(document.getElementById('d').value) / 1000;
+            const P = parseFloat(document.getElementById('P').value) * 1e5; // Pa
+            const Q = parseFloat(document.getElementById('Q').value) / (1000 * 60); // m³/s
+
+            const A1 = Math.PI * D * D / 4;
+            const A2 = Math.PI * (D*D - d*d) / 4;
+
+            const Fe = P * A1 / 1000; // kN
+            const Fr = P * A2 / 1000;
+            const ve = Q / A1;
+            const vr = Q / A2;
+
+            document.getElementById('Fe').innerText = Fe.toFixed(1);
+            document.getElementById('Fr').innerText = Fr.toFixed(1);
+            document.getElementById('ve').innerText = ve.toFixed(3);
+            document.getElementById('vr').innerText = vr.toFixed(3);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

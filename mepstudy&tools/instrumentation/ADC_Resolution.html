@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADC Resolution - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container" style="max-width:800px; margin:40px auto; padding:0 20px;">
+        <a href="../index.html#instrumentation" class="back-btn" style="display:inline-block; margin-bottom:20px; color:var(--primary); text-decoration:none; font-weight:600;"><i class="fas fa-arrow-left"></i> Back to Instrumentation</a>
+
+        <div class="calc-card" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:30px; box-shadow:var(--shadow);">
+            <h2>ADC Resolution Calculator</h2>
+            <p>Calculate voltage resolution, quantization error, and ENOB.</p>
+
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Input voltage range (V):</label>
+                    <input type="number" id="range" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Number of bits (N):</label>
+                    <input type="number" id="bits" step="1" min="1" max="32" value="12">
+                </div>
+                <div class="form-group">
+                    <label>Signal noise RMS (V):</label>
+                    <input type="number" id="noise" step="0.0001" value="0.001">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate</button>
+            </form>
+
+            <div class="result-box" id="result" style="display:none; margin-top:30px; padding:20px; background:var(--bg); border-radius:8px; border-left:4px solid var(--primary);">
+                <h3>Results</h3>
+                <p>Resolution (V/bit): <strong id="res">0</strong></p>
+                <p>Quantization error (V): <strong id="qe">0</strong></p>
+                <p>SNR (dB): <strong id="snr">0</strong></p>
+                <p>ENOB (bits): <strong id="enob">0</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        function calculate() {
+            const range = parseFloat(document.getElementById('range').value);
+            const bits = parseInt(document.getElementById('bits').value);
+            const noise = parseFloat(document.getElementById('noise').value);
+
+            const steps = Math.pow(2, bits);
+            const resolution = range / steps;
+            const quantError = resolution / 2;
+
+            let snr, enob;
+            if (noise > 0) {
+                snr = 20 * Math.log10(range / noise);
+                enob = (snr - 1.76) / 6.02;
+                if (enob > bits) enob = bits;
+                if (enob < 0) enob = 0;
+            } else {
+                snr = Infinity;
+                enob = bits;
+            }
+
+            document.getElementById('res').innerText = resolution.toExponential(4);
+            document.getElementById('qe').innerText = quantError.toExponential(4);
+            document.getElementById('snr').innerText = snr === Infinity ? '∞' : snr.toFixed(2);
+            document.getElementById('enob').innerText = enob.toFixed(2);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

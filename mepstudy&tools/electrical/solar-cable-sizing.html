@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Cable Sizing - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+            margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 8px;
+            border-left: 4px solid var(--primary); display: none;
+        }
+        .result-box.show { display: block; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Solar DC Cable Sizing</h2>
+            <p>Calculate minimum cable size for PV arrays based on current, length, and voltage drop.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>System voltage (V):</label>
+                    <input type="number" id="V" step="1" value="600">
+                </div>
+                <div class="form-group">
+                    <label>Array current (A):</label>
+                    <input type="number" id="I" step="0.1" value="20">
+                </div>
+                <div class="form-group">
+                    <label>One-way cable length (m):</label>
+                    <input type="number" id="L" step="1" value="50">
+                </div>
+                <div class="form-group">
+                    <label>Allowed voltage drop (%):</label>
+                    <input type="number" id="vdPercent" step="0.1" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Cable material:</label>
+                    <select id="material">
+                        <option value="cu">Copper</option>
+                        <option value="al">Aluminum</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Installation method:</label>
+                    <select id="install">
+                        <option value="air">Free air (conduit)</option>
+                        <option value="buried">Direct buried</option>
+                        <option value="tray">Cable tray</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ambient temperature (°C):</label>
+                    <input type="number" id="temp" step="1" value="40">
+                </div>
+                <div class="form-group">
+                    <label>Number of cables in parallel (per polarity):</label>
+                    <input type="number" id="parallel" step="1" min="1" value="1">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Size Cable</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Recommended Cable Size</h3>
+                <p>Minimum cross‑section: <span class="result-value" id="size">0</span> mm²</p>
+                <p>Voltage drop: <span id="vd">0.00</span> V (<span id="vdPct">0.00</span>%)</p>
+                <p>Current per cable: <span id="Iper">0</span> A</p>
+                <p>Ampacity of selected cable: <span id="ampacity">0</span> A</p>
+                <p>Status: <span id="status"></span></p>
+                <table id="alternatives"></table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        const cableSizes = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400];
+
+        // Ampacity for copper, XLPE insulated, 40°C ambient, free air
+        const ampacityTable = {
+            'cu': {1.5:22, 2.5:30, 4:40, 6:52, 10:72, 16:96, 25:127, 35:156, 50:188, 70:240, 95:290, 120:335, 150:380, 185:430, 240:500, 300:570, 400:660},
+            'al': {1.5:17, 2.5:23, 4:31, 6:40, 10:55, 16:73, 25:97, 35:119, 50:144, 70:183, 95:221, 120:255, 150:290, 185:330, 240:385, 300:440, 400:510}
+        };
+
+        // Temperature correction factors (for XLPE 90°C)
+        const tempFactors = {20:1.14, 25:1.10, 30:1.05, 35:1.02, 40:1.00, 45:0.96, 50:0.92, 55:0.88, 60:0.84};
+
+        // Installation derating
+        const installFactors = {'air':1.0, 'buried':0.85, 'tray':0.95};
+
+        function calculate() {
+            const V = parseFloat(document.getElementById('V').value);
+            const I = parseFloat(document.getElementById('I').value);
+            const L = parseFloat(document.getElementById('L').value);
+            const vdPercent = parseFloat(document.getElementById('vdPercent').value) / 100;
+            const mat = document.getElementById('material').value;
+            const install = document.getElementById('install').value;
+            const temp = parseFloat(document.getElementById('temp').value);
+            const parallel = parseInt(document.getElementById('parallel').value);
+
+            const Iper = I / parallel;
+
+            // Find closest temp factor
+            const tempKeys = Object.keys(tempFactors).map(Number).sort((a,b)=>a-b);
+            let tempFactor = 1.0;
+            for (let i = 0; i < tempKeys.length-1; i++) {
+                if (temp >= tempKeys[i] && temp <= tempKeys[i+1]) {
+                    const t1 = tempKeys[i], t2 = tempKeys[i+1];
+                    const f1 = tempFactors[t1], f2 = tempFactors[t2];
+                    tempFactor = f1 + (f2 - f1) * (temp - t1) / (t2 - t1);
+                    break;
+                }
+            }
+            if (temp <= tempKeys[0]) tempFactor = tempFactors[tempKeys[0]];
+            if (temp >= tempKeys[tempKeys.length-1]) tempFactor = tempFactors[tempKeys[tempKeys.length-1]];
+
+            const installFactor = installFactors[install];
+            const totalDerate = tempFactor * installFactor;
+
+            // Find size that meets ampacity
+            let size = 0;
+            for (let s of cableSizes) {
+                if (ampacityTable[mat][s] * totalDerate >= Iper) {
+                    size = s;
+                    break;
+                }
+            }
+
+            if (size === 0) {
+                alert('Current too high – use more parallel cables or larger size.');
+                return;
+            }
+
+            // Voltage drop calculation (DC)
+            const rhoCu = 0.0172; // Ω·mm²/m at 20°C
+            const rhoAl = 0.0282;
+            const rho = mat === 'cu' ? rhoCu : rhoAl;
+            // Temperature correction for resistance: R = R20 * (1 + α*(T-20)), α=0.00393 for Cu, 0.00403 for Al
+            const alpha = mat === 'cu' ? 0.00393 : 0.00403;
+            const rhoTemp = rho * (1 + alpha * (temp - 20));
+
+            const R = rhoTemp * L / (size * parallel); // total resistance per polarity
+            const vd = 2 * I * R; // DC loop (positive + negative)
+            const vdActualPercent = vd / V * 100;
+
+            // If voltage drop too high, try larger size
+            let finalSize = size;
+            let finalVd = vd;
+            let finalVdPct = vdActualPercent;
+            if (vdActualPercent > vdPercent*100) {
+                for (let s of cableSizes) {
+                    if (s <= size) continue;
+                    const Rtry = rhoTemp * L / (s * parallel);
+                    const vdTry = 2 * I * Rtry;
+                    const vdPctTry = vdTry / V * 100;
+                    if (vdPctTry <= vdPercent*100 || ampacityTable[mat][s] * totalDerate >= Iper) {
+                        finalSize = s;
+                        finalVd = vdTry;
+                        finalVdPct = vdPctTry;
+                        break;
+                    }
+                }
+            }
+
+            // Show alternatives
+            let altHtml = '<tr><th>Size (mm²)</th><th>Voltage drop (V)</th><th>Drop %</th><th>Ampacity (A)</th></tr>';
+            for (let s of cableSizes.slice(0,10)) {
+                if (s < finalSize) continue;
+                const Ralt = rhoTemp * L / (s * parallel);
+                const vdAlt = 2 * I * Ralt;
+                const vdPctAlt = vdAlt / V * 100;
+                const amp = ampacityTable[mat][s] * totalDerate;
+                altHtml += `<tr><td>${s}</td><td>${vdAlt.toFixed(2)}</td><td>${vdPctAlt.toFixed(2)}%</td><td>${amp.toFixed(0)}</td></tr>`;
+                if (s >= finalSize*2) break;
+            }
+
+            document.getElementById('size').innerText = finalSize;
+            document.getElementById('vd').innerText = finalVd.toFixed(2);
+            document.getElementById('vdPct').innerText = finalVdPct.toFixed(2);
+            document.getElementById('Iper').innerText = Iper.toFixed(1);
+            document.getElementById('ampacity').innerText = (ampacityTable[mat][finalSize] * totalDerate).toFixed(0);
+            const status = finalVdPct <= vdPercent*100 ? '✅ OK' : '⚠️ Voltage drop exceeds limit – consider larger cable';
+            document.getElementById('status').innerText = status;
+            document.getElementById('alternatives').innerHTML = altHtml;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>
