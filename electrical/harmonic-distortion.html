@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Distortion - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .btn {
+    background: var(--grad);
+    /* ... */
+}
+.header {
+    background: var(--grad);
+}
+/* electrical orange theme override */
+        .header {
+            background: linear-gradient(135deg, #f97316, #fb923c) !important;
+        }
+        .btn {
+            background: linear-gradient(135deg, #f97316, #fb923c) !important;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3) !important;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4) !important;
+        }
+        .result-box {
+            border-left-color: #f97316 !important;
+        }
+        .result-value {
+            color: #f97316 !important;
+        }
+        .back-btn {
+            color: #f97316 !important;
+        }
+        .calc-card h2 {
+            border-bottom-color: #f97316 !important;
+            color: #f97316 !important;
+        }
+/* Steps container - always visible after result */
+.steps-container {
+    margin-top: 30px;
+    display: none;
+    width: 100%;
+}
+
+.steps-container.active {
+    display: block;
+}
+
+/* Step card fix for light + orange mode */
+.step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+/* Force visible text in orange light mode */
+.step-card,
+.step-card p,
+.step-card h4,
+.step-card div {
+    color: var(--text);
+}
+
+/* Formula box visibility fix */
+.step-card .formula {
+    background: rgba(0,0,0,0.05);
+    border-left: 4px solid #f97316;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: monospace;
+    overflow-x: auto;
+    color: var(--text);
+}
+
+/* Result box fix */
+.result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--card);
+    border-radius: 12px;
+    border-left: 4px solid #f97316;
+}
+
+/* Mobile responsive full width */
+@media(max-width:768px){
+    .calc-container{
+        padding: 0 15px;
+    }
+    .calc-card{
+        padding:20px;
+    }
+}
+.step-card h4 {
+    color: var(--primary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+.step-card .formula {
+    background: var(--bg);
+    border-left: 3px solid var(--primary);
+    padding: 15px;
+    margin: 10px 0;
+    font-family: monospace;
+    overflow-x: auto;
+}
+.step-card .step-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--card);   /* bg ki jagah card use karo */
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+    display: none;
+    transition: 0.3s ease;
+}
+
+.result-box.show {
+    display: block;
+}
+
+/* IMPORTANT FIX */
+.result-box h3,
+.result-box p,
+.result-box span {
+    color: var(--text);   /* Always readable */
+}
+
+.result-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Agar tap pe background change ho raha hai to text safe rahe */
+.result-box:active,
+.result-box:focus {
+    background: var(--primary);
+}
+
+.result-box:active *,
+.result-box:focus * {
+    color: #111 !important;   /* Light mode me readable */
+}
+    </style>
+</head>
+    <body class="electrical">
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Total Harmonic Distortion (THD)</h2>
+            <p>Calculate THD from individual harmonic magnitudes.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Fundamental RMS (A or V):</label>
+                    <input type="number" id="fund" step="0.1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic 3 magnitude:</label>
+                    <input type="number" id="h3" step="0.1" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic 5 magnitude:</label>
+                    <input type="number" id="h5" step="0.1" value="8">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic 7 magnitude:</label>
+                    <input type="number" id="h7" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic 9 magnitude:</label>
+                    <input type="number" id="h9" step="0.1" value="3">
+                </div>
+                <div class="form-group">
+                    <label>Harmonic 11 magnitude:</label>
+                    <input type="number" id="h11" step="0.1" value="2">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate THD</button>
+            </form>
+
+            <div class="result-box" id="result">
+                <h3>Harmonic Distortion</h3>
+                <p>THD: <span class="result-value" id="thd">0.00</span>%</p>
+                <p>RMS total: <span id="rmsTotal">0.00</span></p>
+                <p>Status: <span id="status"></span> (IEEE 519 limit 5%)</p>
+                <table id="harmonicTable"></table>
+            </div>
+        </div>
+    </div>
+<div class="steps-container" id="stepsBox">
+
+    <div class="step-card">
+        <h4>Step 1: Sum of Harmonic Squares</h4>
+        <div class="formula">
+            Sum = √(H₃² + H₅² + H₇² + H₉² + H₁₁²)
+        </div>
+        <p>√(Sum of Squares) = <span class="step-value" id="stepSum"></span></p>
+    </div>
+
+    <div class="step-card">
+        <h4>Step 2: THD Calculation</h4>
+        <div class="formula">
+            THD (%) = ( √ΣH² / Fundamental ) × 100
+        </div>
+        <p>THD = <span class="step-value" id="stepTHD"></span>%</p>
+    </div>
+
+    <div class="step-card">
+        <h4>Step 3: Total RMS Value</h4>
+        <div class="formula">
+            RMS(total) = √(Fundamental² + ΣH²)
+        </div>
+        <p>Total RMS = <span class="step-value" id="stepRMS"></span></p>
+    </div>
+
+    <div class="step-card">
+        <h4>Compliance Check (IEEE 519)</h4>
+        <p>Status = <span class="step-value" id="stepStatus"></span></p>
+    </div>
+
+</div>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+       function calculate() {
+
+    const fund = parseFloat(document.getElementById('fund').value);
+
+    const h3 = parseFloat(document.getElementById('h3').value);
+    const h5 = parseFloat(document.getElementById('h5').value);
+    const h7 = parseFloat(document.getElementById('h7').value);
+    const h9 = parseFloat(document.getElementById('h9').value);
+    const h11 = parseFloat(document.getElementById('h11').value);
+
+    if (fund <= 0) {
+        alert("Fundamental value must be greater than zero.");
+        return;
+    }
+
+    const harmonics = [h3, h5, h7, h9, h11];
+
+    /* STEP 1 – Sum of harmonic squares */
+    const sumSq = harmonics.reduce((acc, val) => acc + val * val, 0);
+    const rootSum = Math.sqrt(sumSq);
+
+    /* STEP 2 – THD */
+    const thd = (rootSum / fund) * 100;
+
+    /* STEP 3 – Total RMS */
+    const rmsTotal = Math.sqrt(fund * fund + sumSq);
+
+    const status = thd <= 5
+        ? "COMPLIANT – Within IEEE 519 limit"
+        : "NON-COMPLIANT – Harmonic filtering required";
+
+    /* Build harmonic table */
+    const orders = [3,5,7,9,11];
+    let tableHtml = '<tr><th>Order</th><th>Magnitude</th><th>% of Fundamental</th></tr>';
+
+    orders.forEach((ord, idx) => {
+        const mag = harmonics[idx];
+        const percent = ((mag / fund) * 100).toFixed(2);
+        tableHtml += `<tr><td>${ord}</td><td>${mag}</td><td>${percent}%</td></tr>`;
+    });
+
+    document.getElementById('harmonicTable').innerHTML = tableHtml;
+
+    /* RESULT DISPLAY */
+    document.getElementById('thd').innerText = thd.toFixed(2);
+    document.getElementById('rmsTotal').innerText = rmsTotal.toFixed(2);
+    document.getElementById('status').innerText = status;
+    document.getElementById('result').classList.add('show');
+
+    /* STEP DISPLAY */
+    document.getElementById('stepSum').innerText = rootSum.toFixed(2);
+    document.getElementById('stepTHD').innerText = thd.toFixed(2);
+    document.getElementById('stepRMS').innerText = rmsTotal.toFixed(2);
+    document.getElementById('stepStatus').innerText = status;
+
+    document.getElementById('stepsBox').classList.add('active');
+}
+    </script>
+</body>
+</html>
