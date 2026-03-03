@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltage Drop Calculator - MEP Study & Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .btn {
+    background: var(--grad);
+    /* ... */
+}
+.header {
+    background: var(--grad);
+}
+/* electrical orange theme override */
+        .header {
+            background: linear-gradient(135deg, #f97316, #fb923c) !important;
+        }
+        .btn {
+            background: linear-gradient(135deg, #f97316, #fb923c) !important;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3) !important;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4) !important;
+        }
+        .result-box {
+            border-left-color: #f97316 !important;
+        }
+        .result-value {
+            color: #f97316 !important;
+        }
+        .back-btn {
+            color: #f97316 !important;
+        }
+        .calc-card h2 {
+            border-bottom-color: #f97316 !important;
+            color: #f97316 !important;
+        }
+/* Steps container - always visible after result */
+.steps-container {
+    margin-top: 30px;
+    display: none;
+    width: 100%;
+}
+
+.steps-container.active {
+    display: block;
+}
+
+/* Step card fix for light + orange mode */
+.step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+/* Force visible text in orange light mode */
+.step-card,
+.step-card p,
+.step-card h4,
+.step-card div {
+    color: var(--text);
+}
+
+/* Formula box visibility fix */
+.step-card .formula {
+    background: rgba(0,0,0,0.05);
+    border-left: 4px solid #f97316;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: monospace;
+    overflow-x: auto;
+    color: var(--text);
+}
+
+/* Result box fix */
+.result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--card);
+    border-radius: 12px;
+    border-left: 4px solid #f97316;
+}
+
+/* Mobile responsive full width */
+@media(max-width:768px){
+    .calc-container{
+        padding: 0 15px;
+    }
+    .calc-card{
+        padding:20px;
+    }
+}
+.step-card h4 {
+    color: var(--primary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+.step-card .formula {
+    background: var(--bg);
+    border-left: 3px solid var(--primary);
+    padding: 15px;
+    margin: 10px 0;
+    font-family: monospace;
+    overflow-x: auto;
+}
+.step-card .step-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+        .calc-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .back-btn i { margin-right: 8px; }
+        .calc-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; box-shadow: var(--shadow); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--heading); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 6px;
+            background: var(--bg); color: var(--text); font-size: 1rem;
+        }
+        .btn {
+            background: var(--grad); color: white; border: none; padding: 14px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.3); transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,58,138,0.4); }
+        .result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--card);   /* bg ki jagah card use karo */
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+    display: none;
+    transition: 0.3s ease;
+}
+
+.result-box.show {
+    display: block;
+}
+
+/* IMPORTANT FIX */
+.result-box h3,
+.result-box p,
+.result-box span {
+    color: var(--text);   /* Always readable */
+}
+
+.result-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Agar tap pe background change ho raha hai to text safe rahe */
+.result-box:active,
+.result-box:focus {
+    background: var(--primary);
+}
+
+.result-box:active *,
+.result-box:focus * {
+    color: #111 !important;   /* Light mode me readable */
+}
+    </style>
+</head>
+    <body class="electrical">
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="../index.html" class="logo">MEP Study & Tools</a>
+                <div class="nav-links">
+                    <a href="../index.html#electrical">Electrical</a>
+                    <a href="../index.html#instrumentation">Instrumentation</a>
+                    <a href="../index.html#mechanical">Mechanical</a>
+                    <a href="../index.html#faq">FAQ</a>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-switch">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <a href="../index.html#electrical" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Electrical</a>
+        
+        <div class="calc-card">
+            <h2>Voltage Drop Calculator (IEC 60364)</h2>
+            <p>Calculate voltage drop in cables for given length and current.</p>
+            
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Current (A):</label>
+                    <input type="number" id="I" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label>Length (m):</label>
+                    <input type="number" id="L" step="1" value="50">
+                </div>
+                <div class="form-group">
+                    <label>Cable size (mm²):</label>
+                    <select id="size">
+                        <option value="1.5">1.5</option>
+                        <option value="2.5">2.5</option>
+                        <option value="4">4</option>
+                        <option value="6">6</option>
+                        <option value="10">10</option>
+                        <option value="16">16</option>
+                        <option value="25">25</option>
+                        <option value="35">35</option>
+                        <option value="50">50</option>
+                        <option value="70">70</option>
+                        <option value="95">95</option>
+                        <option value="120">120</option>
+                        <option value="150">150</option>
+                        <option value="185">185</option>
+                        <option value="240">240</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Material:</label>
+                    <select id="material">
+                        <option value="cu">Copper</option>
+                        <option value="al">Aluminum</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Phase:</label>
+                    <select id="phase">
+                        <option value="1">Single phase (AC)</option>
+                        <option value="3">Three phase</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Voltage (V):</label>
+                    <input type="number" id="V" step="1" value="400">
+                </div>
+                <div class="form-group">
+                    <label>Power factor:</label>
+                    <input type="number" id="pf" step="0.01" value="0.85">
+                </div>
+                <button type="button" class="btn" onclick="calculate()">Calculate Drop</button>
+            </form>
+            <div class="result-box" id="result">
+                <h3>Voltage Drop</h3>
+                <p><span class="result-value" id="vd">0.00</span> V</p>
+                <p>Percentage: <span id="vdPct">0.00</span>%</p>
+                <p>Resistance per km: <span id="Rkm">0.000</span> Ω/km</p>
+                <p>Reactance per km: <span id="Xkm">0.000</span> Ω/km (approx)</p>
+                <p>Status: <span id="status"></span></p>
+<!-- Step-by-step Explanation -->
+<div id="steps-container" class="steps-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <a href="../index.html" class="footer-logo">MEP Study & Tools</a>
+                    <p class="footer-description">A comprehensive engineering calculator hub based on IEC, IEEE, and global standards.</p>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-col">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="../index.html#electrical">Electrical Tools</a></li>
+                            <li><a href="../index.html#instrumentation">Instrumentation Tools</a></li>
+                            <li><a href="../index.html#mechanical">Mechanical Tools</a></li>
+                            <li><a href="../index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-disclaimer">
+                <p>All tools are for guidance only and should not replace professional engineering judgment.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 MEP Study & Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+<script>
+   
+function calculate() {
+
+    const I = parseFloat(document.getElementById('I').value);
+    const L = parseFloat(document.getElementById('L').value);
+    const size = parseFloat(document.getElementById('size').value);
+    const mat = document.getElementById('material').value;
+    const phase = document.getElementById('phase').value;
+    const V = parseFloat(document.getElementById('V').value);
+    const pf = parseFloat(document.getElementById('pf').value);
+
+    // Resistivity
+    const rho = mat === 'cu' ? 22.5 : 36.0;
+    const Rac = rho / size;
+    const X = 0.08;
+
+    const sinphi = Math.sqrt(1 - pf * pf);
+    const impedancePart = (Rac * pf + X * sinphi);
+
+    let vd;
+    if (phase === '1') {
+        vd = 2 * I * L * impedancePart / 1000;
+    } else {
+        vd = 1.732 * I * L * impedancePart / 1000;
+    }
+
+    const vdPct = (vd / V) * 100;
+
+    let status = '';
+    if (vdPct <= 3) {
+        status = '✅ Compliant (≤3%)';
+    } else if (vdPct <= 5) {
+        status = '⚠ Acceptable for motor starting';
+    } else {
+        status = '❌ Excessive drop';
+    }
+
+    // Show result
+    document.getElementById('vd').innerText = vd.toFixed(2);
+    document.getElementById('vdPct').innerText = vdPct.toFixed(2);
+    document.getElementById('Rkm').innerText = Rac.toFixed(3);
+    document.getElementById('Xkm').innerText = X.toFixed(3);
+    document.getElementById('status').innerText = status;
+    document.getElementById('result').classList.add('show');
+
+    // Steps container
+    const stepsContainer = document.getElementById('steps-container');
+    stepsContainer.innerHTML = '';
+    stepsContainer.classList.add('active');
+
+    stepsContainer.innerHTML += `
+        <div class="step-card">
+            <h4>Step 1: Input Values</h4>
+            <p>I = ${I} A</p>
+            <p>L = ${L} m</p>
+            <p>Size = ${size} mm²</p>
+            <p>Material = ${mat === 'cu' ? 'Copper' : 'Aluminum'}</p>
+            <p>Power Factor = ${pf}</p>
+        </div>
+
+        <div class="step-card">
+            <h4>Step 2: Cable Resistance</h4>
+            <div class="formula">
+            R = ρ / Size <br>
+            = ${rho} / ${size} <br>
+            = ${Rac.toFixed(3)} Ω/km
+            </div>
+        </div>
+
+        <div class="step-card">
+            <h4>Step 3: Voltage Drop Calculation</h4>
+            <div class="formula">
+            cosφ = ${pf} <br>
+            sinφ = √(1 - cos²φ) = ${sinphi.toFixed(3)} <br><br>
+
+            R cosφ + X sinφ = (${Rac.toFixed(3)} × ${pf}) + (0.08 × ${sinphi.toFixed(3)}) <br>
+            = ${impedancePart.toFixed(4)} <br><br>
+
+            Vd = ${phase === '1' ? '2' : '√3'} × I × L × (R cosφ + X sinφ) / 1000 <br>
+            = ${phase === '1' ? '2' : '1.732'} × ${I} × ${L} × ${impedancePart.toFixed(4)} / 1000 <br>
+            = ${vd.toFixed(2)} V
+            </div>
+        </div>
+
+        <div class="step-card">
+            <h4>Step 4: Percentage Drop</h4>
+            <div class="formula">
+            %Vd = (Vd / V) × 100 <br>
+            = (${vd.toFixed(2)} / ${V}) × 100 <br>
+            = ${vdPct.toFixed(2)} %
+            </div>
+            <p><strong>Status:</strong> ${status}</p>
+        </div>
+    `;
+}
+</script>
